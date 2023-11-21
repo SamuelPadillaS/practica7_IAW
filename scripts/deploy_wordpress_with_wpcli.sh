@@ -53,12 +53,18 @@ wp core install \
   --allow-root
 
 #Instalamos un theme
+
 wp theme install sydney --activate --path=/var/www/html --allow-root
 
 #Instalamos varios plugins
 
+wp plugin install wps-hide-login --activate --path=/var/www/html --allow-root
+wp plugin install permalink-manager --activate --path=/var/www/html --allow-root
+wp plugin install woocommerce --activate --path=/var/www/html --allow-root
 
+#Eliminamos los plugins inactivos
+wp plugin delete $(wp plugin list --status=inactive --field=name)
 
-
-
+# Modificamos los propietarios de /var/www/html 
+chown -R www-data:www-data /var/www/html/
 
