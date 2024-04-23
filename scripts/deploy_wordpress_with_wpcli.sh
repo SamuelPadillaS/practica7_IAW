@@ -62,9 +62,26 @@ wp plugin install wps-hide-login --activate --path=/var/www/html --allow-root
 wp plugin install permalink-manager --activate --path=/var/www/html --allow-root
 wp plugin install woocommerce --activate --path=/var/www/html --allow-root
 
-#Eliminamos los plugins inactivos
-wp plugin delete $(wp plugin list --status=inactive --field=name)
+# Instalamos un tema
+wp theme install sydney --activate --path=/var/www/html --allow-root
 
-# Modificamos los propietarios de /var/www/html 
-chown -R www-data:www-data /var/www/html/
+# Actualizamos los pugins 
+wp core update --path=/var/www/html --allow-root
+
+# Actualizamos los temas 
+wp theme update --all --path=/var/www/html --allow-root
+
+# Modificamos el la estructuras de la cabecera
+wp rewrite structure '/%postname%/' --path=/var/www/html --allow-root
+
+# Modificamos el nombre de la pagina de administrador
+wp option update whl_page 'samueladmin' --path=/var/www/html --allow-root
+
+# Copiamos el nuevo archivo .htaccess
+cp ../htaccess/.htaccess /var/www/html
+
+#Modificamos el propietario y el grupo del directorio /var/www/html
+chown -R www-data:www-data /var/www/html
+
+
 
