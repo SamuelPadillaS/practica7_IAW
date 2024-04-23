@@ -12,6 +12,15 @@ source .env
 # Eliminamos descargas previas de wp-cli
 rm -rf /tmp/wp-cli.phar
 
+# Habilitammos el modúlo rewrite
+a2enmod rewrite
+
+# Copiamos el archivo de php 
+cp ../php/index.php /var/www/html
+
+# Modificamos el propietario y el grupo del directorio /var/www/html
+chown -R www-data:www-data /var/www/html
+
 # Descargamos la última versión de WP-CLI con el comando wget.
 wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P /tmp
 
@@ -83,5 +92,5 @@ cp ../htaccess/.htaccess /var/www/html
 #Modificamos el propietario y el grupo del directorio /var/www/html
 chown -R www-data:www-data /var/www/html
 
-
-
+#Reiniciamos el servicio de Apache
+systemctl restart apache2
