@@ -1,5 +1,11 @@
 # Administración de Wordpress con la utilidad WP-CLI
 
+En esta práctica vamos a realizar la administración de un sitio WordPress desde el terminal con la utilidad WP-CLI.
+
+Con la utilidad WP-CLI podemos realizar las mismas tareas que se pueden hacer desde el panel de administración web de WordPress, pero desde la línea de comandos.
+
+## Instalación de WP-CLI en el servidor LAMP
+
 Antes de comenzar la práctica, tendremos que realizar una sere de archivos para realizarla correctamente:
 
 ~~~
@@ -276,6 +282,8 @@ rm -rf /var/www/html/*
 wp core download --locale=es_ES --path=/var/www/html --allow-root
 ~~~
 
+Tenga en cuenta que si ejecuta el comando anterior como sudo, el código fuente de WordPress que ha descargado en el directorio /var/www/html tendrá como propietario al usuario root y el grupo también será root. Por lo tanto, al final de todo el proceso de instalación tendrá que modificar el propietario y el grupo del directorio /var/www/html al usuario www-data y al grupo www-data.
+
 ### 10. Creamos base de datos y el usuario de la base de datos
 
 ~~~
@@ -297,6 +305,16 @@ wp config create \
   --allow-root 
 ~~~
 
+En este paso le estamos indicando los siguientes parámetros:
+
+--dbname: Nombre de la base de datos. En el ejemplo anterior se utiliza wordpress_db.
+--dbuser: Usuario de la base de datos. En el ejemplo anterior se utiliza wordpress_user.
+--dbpass: Contraseña del usuario de la base de datos. En el ejemlo anterior se utiliza wordpress_password.
+--dbhost: Host de la base de datos. En el ejemplo anterior se utiliza localhost.
+Tenga en cuenta que en su caso tendrá que reemplazar los valores: wordpress_db, wordpress_user y wordpress_password, por los valores que quiera utilizar para su base de datos, usuario y contraseña.
+
+Al crear el archivo de configuración se crearán automáticamente los valores aleatorios para las security keys.
+
 ### 12.Instalamos WordPress
 
 ~~~
@@ -309,6 +327,15 @@ wp core install \
   --path=/var/www/html \
   --allow-root
 ~~~
+
+En este paso le estamos indicando los siguientes parámetros:
+
+--url: Dominio del sitio WordPress. En el ejemplo anterior hemos utilizado el dominio practica-wordpress.ddns.net, que es el nombre del dominio que hemos configurado en el servidor DNS. En una instalación en una máquina local también podríamos poner localhost o la dirección IP del servidor.
+--title: Título del sitio WordPress.
+--admin_user: Nombre del usuario administrador.
+--admin_password: Contraseña del usuario administrador.
+--admin_email: Email del usuario administrador.
+Tenga en cuenta que en su caso tendrá que reemplazar los valores: practica-wordpress.ddns.net, IAW, admin, admin_password y test@test.com, por los valores que quiera utilizar para el dominio del sitio, título, nombre, contraseña y dirección de correo del administrador.
 
 ### 13. Instalamos un theme
 
@@ -324,14 +351,34 @@ wp plugin install permalink-manager --activate --path=/var/www/html --allow-root
 wp plugin install woocommerce --activate --path=/var/www/html --allow-root
 ~~~
 
-### 15. Eliminamos los plugins inactivos
+### 15: Configuración de enlaces permanentes
+
+~~~
+wp rewrite structure '/%postname%/' \
+  --path=/var/www/html \
+  --allow-root
+~~~
+
+El parámetro /%postname%/ indica el patrón de reescritura que queremos utilizar. Otros patrones de reescritura que podemos utilizar son:
+
+/%year%/%monthnum%/%day%/%postname%/: Año, mes, día y nombre de la entrada.
+/%year%/%monthnum%/%postname%/: Año, mes y nombre de la entrada.
+/%year%/%postname%/: Año y nombre de la entrada.
+/%postname%/: Nombre de la entrada.
+Tenga en cuenta que para que los enlaces permanentes funcionen correctamente es necesario que el módulo mod_rewrite de Apache esté activado y que la directiva AllowOverride All esté configurada en su sitio virtual de Apache.
+
+También es necesario un archivo .htaccess en el directorio raíz de WordPress con las reglas de reescritura apropiadas. Este archivo se crea automáticamente cuando se configuran los enlaces permanentes desde el panel de administración web de WordPress o también puede crearlo de forma manual y copiarlo en el directorio raíz de WordPress.
+
+### 16. Eliminamos los plugins inactivos
 
 ~~~
 wp plugin delete $(wp plugin list --status=inactive --field=name)
 ~~~
 
-### 16. Modificamos los propietarios de /var/www/html 
+### 17. Modificamos los propietarios de /var/www/html 
 
 ~~~
 chown -R www-data:www-data /var/www/html/
 ~~~
+Hecho todo esto ya tendriamos nuestro wordpress instalado con las funciones adicionales funcionando como es el caso del acceso al modo edición de wordpress:
+![Captura de pantalla 2024-06-16 120631](https://github.com/SamuelPadillaS/practicaIAW_06/assets/114667075/8336d25a-4f45-40cd-83c6-43b23171cb62)
